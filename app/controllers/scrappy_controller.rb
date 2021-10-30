@@ -1,10 +1,14 @@
 class ScrappyController < ApplicationController
   require 'open-uri'
   def index
-    data = Scrappy.get_data
-    amount = data.scan(/\d/).join('').to_i
-    Holder.create(amount: amount)
-    render json: { holders: amount }
+    response = Scrappy.get_data
+    if response.success?
+      Holder.create(amount: response.payload)
+      render json: { holders: response.payload }
+    else
+      amount = Holder.last.amount
+      render json: { holders: amount }
+    end
   end
 
   def show
